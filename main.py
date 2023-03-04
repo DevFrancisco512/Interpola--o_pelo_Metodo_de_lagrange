@@ -23,18 +23,39 @@ class tela():
         root = Tk()
         root.title('Método de lagrange')
         wsize = root.winfo_screenwidth(), root.winfo_screenheight()
-        center = wsize[0]
-        root.geometry('820x480')
+        rsize = 840, 480
+        center = int((wsize[0]/2)-(rsize[0]/2)), int((wsize[1]/2)-(rsize[1]/2))
+        root.geometry(f'{rsize[0]}x{rsize[1]}+{center[0]}+{center[1]}')
 
-        backgrafic = tki.Frame(root, width=640, height=480)
+        backgrafic = Frame(root, width=640, height=480)
         backgrafic.grid(column=1, row=1,rowspan=3)
-        content = tki.Frame(root, width=180, height=480, bg='grey')
+        backgrafic['borderwidth'] = 2
+        content = Frame(root, width=180, height=480, bg='grey')
         content.grid(column=0, row=0, rowspan=3)
 
-        strvet1 = StringVar()
-        entrytvet1 = Entry(content,font=('Arial 14'))
-        x, y = [45, 10]
-        entrytvet1.place(x=45, y=10, width=130)
+        vetEntrys = list()
+        entryvet1 = StringVar()
+        vetEntrys.append(Entry(content,font=('Arial 14'), textvariable=entryvet1))
+
+        entrytvet2 = StringVar()
+        vetEntrys.append(Entry(content, font='Arial 14', textvariable=entrytvet2))
+
+        entrytvet3 = StringVar()
+        vetEntrys.append(Entry(content, font='Arial 14', textvariable=entrytvet3))
+
+        x = 45
+        y = 10
+        for entry in vetEntrys:
+            entry.place(x=x, y=y, width=130)
+            y += 30
+        
+        btncalcular = Button(root, text='Calcular', font='Arial 16', background='#1B64F3', activebackground='#5B8DEF', fg='white')
+        btncalcular.place(x=30, y=400)
+        btncalcular.focus_set()
+        btncalcular.bind("return", lambda:print('io'))
+
+        mainloop()
+
 
     def genGrafico(self, vetx, vety, n, xp, yp):
         minX = min(vetx)
