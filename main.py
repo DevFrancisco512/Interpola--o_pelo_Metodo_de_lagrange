@@ -19,7 +19,22 @@ def interpolLagrange(x, vetx, vety) -> float:
         
     return yp
 
-class tela():
+class errorEcreen():
+    def __init__(self, error:str = 'onoifnroinoi noirngr inorkngokrn orngorin '):
+        self.error = error
+        self.root = Tk()
+        wsize = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        rsize = 400, 150
+        center = int((wsize[0]/2)-(rsize[0]/2)), int((wsize[1]/2)-(rsize[1]/2))
+        self.root.geometry(f'{rsize[0]}x{rsize[1]}+{center[0]}+{center[1]}')
+
+        self.label = Label(self.root, text=self.error, fg='black', font='Arial 12', padx=20, pady=20)
+        self.label.pack()
+        self.button = Button(self.root, text='OK', font='Arial 12', command= lambda:self.root.destroy())
+        self.button.pack(pady=10)
+        mainloop()
+
+class mainScreen():
     def __init__(self, root) -> None:
         self.root = root
         self.root.title('Método de lagrange')
@@ -31,11 +46,10 @@ class tela():
         root.geometry(f'{rsize[0]}x{rsize[1]}+{center[0]}+{center[1]}')
         self.canvas = None
 
-        self.backgrafic = Frame(self.root, width=600, height=480)
-        self.backgrafic.grid(column=1, row=1,rowspan=3)
-        self.backgrafic['borderwidth'] = 2
         self.content = Frame(self.root, width=220, height=480, bg='grey')
-        self.content.grid(column=0, row=0, rowspan=3)
+        self.content.pack(side='left')
+        self.backgrafic = Frame(self.root, width=600, height=480)
+        self.backgrafic.pack(side='top')
 
         vetWidgeths = list()
         self.vetPxy1 = [StringVar(), StringVar()]
@@ -55,6 +69,7 @@ class tela():
         self.Py.set('0.0')
         vetWidgeths.append([Label(self.content, text='Yp = ', font='Arial 12', bg='gray'), Label(self.content, textvariable=self.Py, font='Arial 12', fg='black', bg='gray')])
 
+
         y = 10
         for widgs in vetWidgeths:
             x = 0
@@ -70,32 +85,43 @@ class tela():
         btncalcular = Button(self.content, text='Calcular', font='Arial 12', activebackground='#5B8DEF',command=lambda:self.calcula())
         btncalcular.place(x=10, y=430)
 
-        btnplot = Button(self.content, text='Plotar Gráfico', font='Arial 12', activebackground='#5B8DEF', command= lambda:self.plotGrafico())
-        btnplot.place(x=100, y=430)
+        self.btnplot = Button(self.backgrafic, text='Plotar Gráfico', font='Arial 12', activebackground='#5B8DEF', command= lambda:self.plotGrafico())
+        self.btnplot.pack()
 
         vetWidgeths[0][1].focus()
-
         mainloop()
     
     def quit(self):
-       self.root.destroy
+        if self.canvas != None:
+            self.canvas.destroy
+        self.root.destroy
 
     def calcula(self):
-        vetx, vety = self.getCoordinates()
-        self.Py.set(str(interpolLagrange(float(self.Px.get()), vetx, vety)))
+        try:
+            vetx, vety = self.getCoordinates()
+            self.Py.set(str(interpolLagrange(float(self.Px.get()), vetx, vety)))
+        except ValueError as e:
+            errorEcreen(e)
+            self.Py.set(str('0.0'))
 
     def getCoordinates(self):
-        vetx=[float(cord[0].get()) for cord in [self.vetPxy1, self.vetPxy2, self.vetPxy3]]
-        vety=[float(cord[1].get()) for cord in [self.vetPxy1, self.vetPxy2, self.vetPxy3]]
-        return vetx, vety
-        
+        try:
+            vetx=[float(cord[0].get()) for cord in [self.vetPxy1, self.vetPxy2, self.vetPxy3]]
+            vety=[float(cord[1].get()) for cord in [self.vetPxy1, self.vetPxy2, self.vetPxy3]]
+            return vetx, vety
+        except ValueError:
+            raise ValueError('Preciso que você preencha todos os campos! ;D')
+
 
     def plotGrafico(self):
         self.calcula()
         if self.canvas != None:
             self.canvas[0].get_tk_widget().destroy()
             self.canvas[1].destroy()
-        vetx, vety = self.getCoordinates()
+        try:
+            vetx, vety = self.getCoordinates()
+        except ValueError:
+            return False
         minX = min(vetx)
         maxX = max(vetx)
         w = np.arange(minX-minX%10, maxX+maxX%10, 0.01)
@@ -104,7 +130,7 @@ class tela():
             yw.append(interpolLagrange(pos, vetx, vety))
 
         #Gera figura que será passada prara o frame
-        fig = Figure(figsize=(6, 4.4), dpi = 100)
+        fig = Figure(figsize=(6, 4.20), dpi = 100)
         ax = fig.add_subplot(111)
 
         ax.plot(w, yw, 'b-')
@@ -120,11 +146,10 @@ class tela():
         canvas.get_tk_widget().pack()
         toolbar = NavigationToolbar2Tk(canvas, self.backgrafic)
         canvas.get_tk_widget().pack()
-        self.canvas = canvas, toolbar
-
-        
+        self.canvas = canvas, toolbar  
 
 if __name__ == '__main__':
     root = Tk()
-    tela(root)
+    root.grid
+    mainScreen(root)
 
