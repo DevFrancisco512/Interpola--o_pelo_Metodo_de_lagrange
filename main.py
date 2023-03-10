@@ -97,12 +97,13 @@ class mainScreen():
         self.root.destroy
 
     def calcula(self):
-        try:
-            vetx, vety = self.getCoordinates()
-            self.Py.set(str(interpolLagrange(float(self.Px.get()), vetx, vety)))
-        except ValueError as e:
-            errorEcreen(e)
-            self.Py.set(str('0.0'))
+        if self.Px.get() != '' and self.Py.get() != '':
+            try:
+                vetx, vety = self.getCoordinates()
+                self.Py.set(str(interpolLagrange(float(self.Px.get()), vetx, vety)))
+            except ValueError as e:
+                errorEcreen(e)
+                self.Py.set(str('0.0'))
 
     def getCoordinates(self):
         try:
@@ -114,7 +115,6 @@ class mainScreen():
 
 
     def plotGrafico(self):
-        self.calcula()
         if self.canvas != None:
             self.canvas[0].get_tk_widget().destroy()
             self.canvas[1].destroy()
@@ -135,7 +135,9 @@ class mainScreen():
 
         ax.plot(w, yw, 'b-')
         ax.plot(vetx, vety, 'ro')
-        ax.plot(float(self.Px.get()), float(self.Py.get()), 'go')
+        if self.Px.get() != '' and self.Py.get() != '':
+            self.calcula()
+            ax.plot(float(self.Px.get()), float(self.Py.get()), 'go')
         ax.set_ylabel('eixo y')
         ax.set_xlabel('eixo x')
         ax.grid(True)
@@ -150,6 +152,4 @@ class mainScreen():
 
 if __name__ == '__main__':
     root = Tk()
-    root.grid
     mainScreen(root)
-
